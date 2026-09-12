@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Clock">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Lock Screen</title>
@@ -332,12 +338,20 @@
   wallpaperInput.addEventListener('change', (e)=>{
     const file = e.target.files && e.target.files[0];
     if (!file) return;
+
     const reader = new FileReader();
     reader.onload = (ev)=>{
-      wallpaperEl.style.backgroundImage = `url(${ev.target.result})`;
+      const image = ev.target.result;
+      wallpaperEl.style.backgroundImage = `url(${image})`;
+      localStorage.setItem("clockWallpaper", image);
     };
     reader.readAsDataURL(file);
   });
+
+  const savedWallpaper = localStorage.getItem("clockWallpaper");
+  if (savedWallpaper){
+    wallpaperEl.style.backgroundImage = `url(${savedWallpaper})`;
+  }
 
   setTimeout(()=> hint.classList.add('fade'), 4000);
 
@@ -491,6 +505,10 @@
   setInterval(renderMainClock, 1000);
   setInterval(renderFlipClock, 1000);
   setInterval(loadWeather, 10 * 60 * 1000);
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js");
+  }
 
 })();
 </script>
